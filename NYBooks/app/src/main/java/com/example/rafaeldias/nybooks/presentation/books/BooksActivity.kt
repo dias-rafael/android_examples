@@ -2,6 +2,8 @@ package com.example.rafaeldias.nybooks.presentation.books
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.rafaeldias.nybooks.R
@@ -22,18 +24,19 @@ class BooksActivity : AppCompatActivity() {
 
         setSupportActionBar(binding.toolbarMain)
 
-        with(binding.recyclerViewItems) {
-            layoutManager = LinearLayoutManager(this@BooksActivity, RecyclerView.VERTICAL, false)
-            setHasFixedSize(true)
-            adapter = BooksAdapter(getBooksMock())
-        }
+        val viewModel: BooksViewModel = ViewModelProvider(this).get(BooksViewModel::class.java)
+
+        viewModel.booksLiveData.observe(this, Observer {
+            it?.let { books -> //?.let so executa se nao for nulo
+                with(binding.recyclerViewItems) {
+                    layoutManager = LinearLayoutManager(this@BooksActivity, RecyclerView.VERTICAL, false)
+                    setHasFixedSize(true)
+                    adapter = BooksAdapter(books)
+                }
+            }
+        })
+
+        viewModel.getBooks()
     }
 
-    fun getBooksMock(): List<Book> {
-        return listOf<Book>(
-            Book("Title1", "Author 1"),
-            Book("Title2", "Author 2"),
-            Book("Title3", "Author 3"),
-        )
-    }
 }
